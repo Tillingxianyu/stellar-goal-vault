@@ -1,55 +1,45 @@
-# Backend Search (?search=) Parameter - Implementation TODO
+# Contributor Summary Endpoint - Implementation TODO
 
 ## Approved Plan Summary
 
-Add `?search=` query param to GET /api/campaigns filtering titles case-insensitively via SQL LIKE. Map to existing `searchQuery` logic (keep ?q= compat). Restrict to title only. Frontend: integrate server search, remove client-side filtering.
+Add GET /api/campaigns/:id/contributors endpoint returning grouped contributor totals with refunded status. SQL GROUP BY contributor. 404 for invalid ID. Empty [] for no pledges. Document in README.md.
 
-## Implementation Steps (Complete in order)
+## Implementation Steps
 
-### 1. Create TODO.md and Backend Schema Prep
+### 1. Backend Types (campaign.ts or new)
 
-- [x] Created TODO.md with steps
+- Add ContributorSummary interface
+- [x] Edit frontend/src/types/campaign.ts
 
-### 2. Backend: Update parseCampaignListFilters in index.ts
+### 2. Backend Data Layer (campaignStore.ts)
 
-- Add `search?: unknown` param to parseCampaignListFilters, prefer searchQuery = normalizeQueryValue(query.search) || query.q
-- Pass search: req.query.search in /api/campaigns call
-- [x] Edit backend/src/index.ts
-
-### 3. Backend: Restrict campaignStore.ts SQL to title only
-
-- In listCampaigns if(searchQuery): whereClauses.push(`LOWER(title) LIKE ?`); params.push(searchTerm);
+- Add ContributorSummary interface, getContributorSummary function with GROUP BY SQL
 - [x] Edit backend/src/services/campaignStore.ts
 
-### 4. Frontend: Update api.ts listCampaigns
+### 3. Backend Route (index.ts)
 
-- Accept `filters?: { search?: string; asset?: string; status?: string; includeDeleted?: boolean }`
-- Add params.set('search', filters.search?.trim()); + asset/status
-- [x] Edit frontend/src/services/api.ts
+- Added GET /api/campaigns/:id/contributors route + getContributorSummary import
+- [x] Edit backend/src/index.ts
 
-### 5. Frontend: Integrate SearchInput → CampaignsTable server fetch
+### 4. Document Response (README.md)
 
-- Add onSearchChange prop to table, useEffect(debouncedSearchQuery => onSearchChange)
-- App.tsx: onSearchChange={(query) => refreshCampaigns(query)}, update refreshCampaigns(searchQuery:string='')
-- Remove debouncedSearchQuery from filteredCampaigns useMemo deps, pass '' to applyFilters
-- Update bootstrap listCampaigns({search:''})
-- [x] Edit frontend/src/components/CampaignsTable.tsx
-- [x] Edit frontend/src/App.tsx
+- Added API reference with response shape
+- [x] Edit README.md
 
-### 6. Frontend: Clean up utils
+### 5. Frontend API + Component (if needed)
 
-- Remove searchCampaigns call from applyFilters, comment server-side search
-- [ ] Edit frontend/src/components/campaignsTableUtils.ts
+- Add listCampaignContributors(id): Promise<ContributorSummary[]>
+- Hook up ContributorSummary component if exists
+- [ ] Edit frontend/src/services/api.ts
+- [ ] Edit frontend/src/components/ContributorSummary.tsx (if relevant)
 
-### 7. Testing & Follow-up
+### 6. Testing
 
-- Backend: Restart, test `curl http://localhost:3001/api/campaigns?search=title`
-- Frontend: `npm run dev`, test search input → server filter, case-insens, empty=all
-- Verify progress fields unchanged
-- E2E test if exists
-- [ ] Update TODO.md on complete
-- [ ] attempt_completion
+- Backend: curl /api/campaigns/1/contributors → array, /api/invalid → 404
+- Verify empty [], refunded status correct
+- Frontend: manual test in dev
+- Update TODO
 
 ## Progress
 
-Ready for step-by-step implementation.
+Ready for implementation.
