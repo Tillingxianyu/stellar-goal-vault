@@ -145,6 +145,13 @@ export interface OpenIssue {
   points: 100 | 150 | 200;
 }
 
+export interface ContributorSummary {
+  contributor: string;
+  totalPledged: number;
+  refundedAmount: number;
+  isFullyRefunded: boolean;
+}
+
 export interface ApiError {
   message: string;
   code?: string;

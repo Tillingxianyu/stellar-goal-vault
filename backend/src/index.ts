@@ -19,6 +19,7 @@ import {
   createCampaign,
   getCampaign,
   getCampaignWithProgress,
+  getContributorSummary,
   getGlobalStats,
   initCampaignStore,
   listCampaignPledges,
@@ -457,6 +458,21 @@ app.post("/api/campaigns/:id/refund", applyRateLimit(WRITE_RATE_LIMIT_MAX_REQUES
   } catch (error) {
     next(error);
   }
+});
+
+app.get("/api/campaigns/:id/contributors", (req: Request, res: Response) => {
+  const parsedId = parseCampaignId(req.params.id);
+  if (!parsedId.ok) {
+    sendValidationError(parsedId.issues);
+  }
+
+  const campaign = getCampaign(parsedId.value);
+  if (!campaign) {
+    throw new AppError("Campaign not found.", 404, "NOT_FOUND");
+  }
+
+  const summary = getContributorSummary(parsedId.value);
+  res.json({ data: summary });
 });
 
 app.get("/api/campaigns/:id/history", (req: Request, res: Response) => {
